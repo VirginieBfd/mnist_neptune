@@ -67,7 +67,10 @@ def main() -> None:
 
     # init DataLoader from MNIST dataset
     train_ds = MNIST(
-        os.getcwd(), train=True, download=True, transform=transforms.ToTensor(),
+        os.getcwd(),
+        train=True,
+        download=True,
+        transform=transforms.ToTensor(),
     )
     train_loader = DataLoader(train_ds, batch_size=PARAMS["batch_size"], num_workers=8)
 
@@ -94,5 +97,5 @@ def main() -> None:
     trainer.fit(mnist_model, train_loader)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
