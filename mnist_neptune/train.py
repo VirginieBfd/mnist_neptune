@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -62,24 +62,24 @@ class MNISTModel(LightningModule):
 
 
 def main() -> None:
+    # (neptune) create NeptuneLogger
+    settings = Settings()
+    print(settings)
+
     # init model
     mnist_model = MNISTModel()
 
     # init DataLoader from MNIST dataset
     train_ds = MNIST(
-        os.getcwd(),
+        str(Path().cwd() / "data"),
         train=True,
         download=True,
         transform=transforms.ToTensor(),
     )
     train_loader = DataLoader(train_ds, batch_size=PARAMS["batch_size"], num_workers=8)
 
-    # (neptune) create NeptuneLogger
-    settings = Settings()
-    print(settings)
-
     neptune_logger = NeptuneLogger(
-        api_key=str(settings.NEPTUNE_API_TOKEN),
+        api_key=settings.NEPTUNE_API_TOKEN.get_secret_value(),
         project=settings.NEPTUNE_PROJECT_NAME,
         tags=["simple", "showcase"],
     )
