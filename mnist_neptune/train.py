@@ -6,11 +6,12 @@ import torch
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.loggers import NeptuneLogger
 from sklearn.metrics import accuracy_score
-from src.settings import Settings
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.datasets import MNIST
+
+from mnist_neptune.settings import Settings
 
 # define hyper-parameters
 PARAMS = {
@@ -59,31 +60,31 @@ class MNISTModel(LightningModule):
 
 
 # init model
-# mnist_model = MNISTModel()
-#
+mnist_model = MNISTModel()
+
 # init DataLoader from MNIST dataset
-# train_ds = MNIST(
-#     os.getcwd(), train=True, download=True, transform=transforms.ToTensor()
-# )
-# train_loader = DataLoader(train_ds, batch_size=PARAMS["batch_size"], num_workers=8)
+train_ds = MNIST(
+    os.getcwd(), train=True, download=True, transform=transforms.ToTensor()
+)
+train_loader = DataLoader(train_ds, batch_size=PARAMS["batch_size"], num_workers=8)
 
 # (neptune) create NeptuneLogger
 settings = Settings()
 print(settings.NEPTUNE_PROJECT_NAME)
-# neptune_logger = NeptuneLogger(
-#     api_key=settings.NEPTUNE_API_TOKEN,
-#     project=settings.NEPTUNE_PROJECT_NAME,
-#     tags=["simple", "showcase"],
-# )
-#
-# # (neptune) initialize a trainer and pass neptune_logger
-# trainer = Trainer(
-#     logger=neptune_logger,
-#     max_epochs=PARAMS["max_epochs"],
-# )
-#
-# # (neptune) log hyper-parameters
-# neptune_logger.log_hyperparams(params=PARAMS)
-#
-# # train the model log metadata to the Neptune run
-# trainer.fit(mnist_model, train_loader)
+neptune_logger = NeptuneLogger(
+    api_key=settings.NEPTUNE_API_TOKEN,
+    project=settings.NEPTUNE_PROJECT_NAME,
+    tags=["simple", "showcase"],
+)
+
+# (neptune) initialize a trainer and pass neptune_logger
+trainer = Trainer(
+    logger=neptune_logger,
+    max_epochs=PARAMS["max_epochs"],
+)
+
+# (neptune) log hyper-parameters
+neptune_logger.log_hyperparams(params=PARAMS)
+
+# train the model log metadata to the Neptune run
+trainer.fit(mnist_model, train_loader)
