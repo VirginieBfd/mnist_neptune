@@ -11,6 +11,9 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.datasets import MNIST
 
+from src.settings import Settings
+
+
 # define hyper-parameters
 PARAMS = {
     "batch_size": 32,
@@ -67,9 +70,10 @@ train_ds = MNIST(
 train_loader = DataLoader(train_ds, batch_size=PARAMS["batch_size"], num_workers=8)
 
 # (neptune) create NeptuneLogger
+settings = Settings()
 neptune_logger = NeptuneLogger(
-    api_key=os.getenv("NEPTUNE_API_TOKEN"),
-    project="bonnefond.virginie/initial-project",
+    api_key=settings.NEPTUNE_API_TOKEN,
+    project=settings.NEPTUNE_PROJECT_NAME,
     tags=["simple", "showcase"],
 )
 
