@@ -9,6 +9,7 @@ Create environment:
 ```bash
 conda create -n mnist-neptune python=3.9
 pip install -r requirements.txt
+pip install -e .
 ```
 
 Before running the script, create a `.env` file with:
@@ -16,8 +17,8 @@ Before running the script, create a `.env` file with:
 - NEPTUNE_PROJECT_NAME: the Neptune project's name
 - NEPTUNE_API_TOKEN: the Neptune project's API token
 
-Run training script:
+Run training:
 
 ```bash
-python src/train.py
+python -m mnist_neptune.train
 ```

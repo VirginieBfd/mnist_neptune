@@ -6,11 +6,12 @@ import torch
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.loggers import NeptuneLogger
 from sklearn.metrics import accuracy_score
-from src.settings import Settings
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.datasets import MNIST
+
+from mnist_neptune.settings import Settings
 
 # define hyper-parameters
 PARAMS = {
@@ -46,10 +47,12 @@ class MNISTModel(LightningModule):
         loss = np.array([])
         y_true = np.array([])
         y_pred = np.array([])
+
         for results_dict in outputs:
             loss = np.append(loss, results_dict["loss"])
             y_true = np.append(y_true, results_dict["y_true"])
             y_pred = np.append(y_pred, results_dict["y_pred"])
+
         acc = accuracy_score(y_true, y_pred)
         self.log("metrics/epoch/loss", loss.mean())
         self.log("metrics/epoch/acc", acc)
@@ -58,31 +61,41 @@ class MNISTModel(LightningModule):
         return torch.optim.Adam(self.parameters(), lr=PARAMS["lr"])
 
 
-# init model
-mnist_model = MNISTModel()
+def main() -> None:
+    # init model
+    mnist_model = MNISTModel()
 
-# init DataLoader from MNIST dataset
-train_ds = MNIST(
-    os.getcwd(), train=True, download=True, transform=transforms.ToTensor()
-)
-train_loader = DataLoader(train_ds, batch_size=PARAMS["batch_size"], num_workers=8)
+    # init DataLoader from MNIST dataset
+    train_ds = MNIST(
+        os.getcwd(),
+        train=True,
+        download=True,
+        transform=transforms.ToTensor(),
+    )
+    train_loader = DataLoader(train_ds, batch_size=PARAMS["batch_size"], num_workers=8)
 
-# (neptune) create NeptuneLogger
-settings = Settings()
-neptune_logger = NeptuneLogger(
-    api_key=settings.NEPTUNE_API_TOKEN,
-    project=settings.NEPTUNE_PROJECT_NAME,
-    tags=["simple", "showcase"],
-)
+    # (neptune) create NeptuneLogger
+    settings = Settings()
+    print(settings)
 
-# (neptune) initialize a trainer and pass neptune_logger
-trainer = Trainer(
-    logger=neptune_logger,
-    max_epochs=PARAMS["max_epochs"],
-)
+    neptune_logger = NeptuneLogger(
+        api_key=str(settings.NEPTUNE_API_TOKEN),
+        project=settings.NEPTUNE_PROJECT_NAME,
+        tags=["simple", "showcase"],
+    )
 
-# (neptune) log hyper-parameters
-neptune_logger.log_hyperparams(params=PARAMS)
+    # (neptune) initialize a trainer and pass neptune_logger
+    trainer = Trainer(
+        logger=neptune_logger,
+        max_epochs=PARAMS["max_epochs"],
+    )
 
-# train the model log metadata to the Neptune run
-trainer.fit(mnist_model, train_loader)
+    # (neptune) log hyper-parameters
+    neptune_logger.log_hyperparams(params=PARAMS)
+
+    # train the model log metadata to the Neptune run
+    trainer.fit(mnist_model, train_loader)
+
+
+if __name__ == "__main__":
+    main()
