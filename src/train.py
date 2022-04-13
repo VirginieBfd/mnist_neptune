@@ -6,13 +6,11 @@ import torch
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.loggers import NeptuneLogger
 from sklearn.metrics import accuracy_score
+from src.settings import Settings
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.datasets import MNIST
-
-from src.settings import Settings
-
 
 # define hyper-parameters
 PARAMS = {

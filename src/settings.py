@@ -6,5 +6,5 @@ class Settings(BaseSettings):
     NEPTUNE_API_TOKEN: str
 
     class Config:
-        env_file = '.env'
-        env_file_encoding = 'utf-8'
+        env_file = ".env"
+        env_file_encoding = "utf-8"
