@@ -1,17 +1,15 @@
-
-  
 import os
 
 import numpy as np
 import torch
+
+from pytorch_lightning import LightningModule, Trainer
+from pytorch_lightning.loggers import NeptuneLogger
 from sklearn.metrics import accuracy_score
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.datasets import MNIST
-
-from pytorch_lightning import LightningModule, Trainer
-from pytorch_lightning.loggers import NeptuneLogger
 
 # define hyper-parameters
 PARAMS = {
@@ -41,9 +39,7 @@ class MNISTModel(LightningModule):
         acc = accuracy_score(y_true, y_pred)
         self.log("metrics/batch/acc", acc)
 
-        return {"loss": loss,
-                "y_true": y_true,
-                "y_pred": y_pred}
+        return {"loss": loss, "y_true": y_true, "y_pred": y_pred}
 
     def training_epoch_end(self, outputs):
         loss = np.array([])
@@ -65,7 +61,9 @@ class MNISTModel(LightningModule):
 mnist_model = MNISTModel()
 
 # init DataLoader from MNIST dataset
-train_ds = MNIST(os.getcwd(), train=True, download=True, transform=transforms.ToTensor())
+train_ds = MNIST(
+    os.getcwd(), train=True, download=True, transform=transforms.ToTensor()
+)
 train_loader = DataLoader(train_ds, batch_size=PARAMS["batch_size"], num_workers=8)
 
 # (neptune) create NeptuneLogger
